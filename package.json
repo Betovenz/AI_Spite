@@ -1,0 +1,14 @@
+{
+  "name": "bluespite",
+  "version": "0.2.0",
+  "private": true,
+  "description": "BlueSPite — Shopee product research -> AI video generation, brokered entirely through the BlueSPite Chrome extension.",
+  "type": "module",
+  "scripts": {
+    "dev": "node server/server.mjs",
+    "start": "node server/server.mjs",
+    "test": "node test/shopee-driver.test.mjs && node test/shopee-parse.test.mjs && node test/flow-client.test.mjs && node test/media-store.test.mjs && node test/runner-error-model.test.mjs && node test/cancel.test.mjs && node test/store-reconcile.test.mjs && node test/history.test.mjs && node test/prompt-silent.test.mjs && node test/version-update.test.mjs"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {}
+}

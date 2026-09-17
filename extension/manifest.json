@@ -1,0 +1,69 @@
+{
+  "manifest_version": 3,
+  "name": "BlueSPite",
+  "version": "0.6.0",
+  "description": "BlueSPite — ตัวกลางเชื่อม Shopee และ Google Flow เข้ากับเว็บ BlueSPite ที่รันบนเครื่องคุณ",
+  "icons": {
+    "16": "icons/bluespite-16.png",
+    "32": "icons/bluespite-32.png",
+    "48": "icons/bluespite-48.png",
+    "128": "icons/bluespite-128.png"
+  },
+  "action": {
+    "default_title": "BlueSPite",
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "icons/bluespite-16.png",
+      "32": "icons/bluespite-32.png"
+    }
+  },
+  "background": {
+    "service_worker": "src/background.js",
+    "type": "module"
+  },
+  "permissions": [
+    "alarms",
+    "cookies",
+    "scripting",
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1/*",
+    "http://localhost/*",
+    "https://shopee.co.th/*",
+    "https://*.shopee.co.th/*",
+    "https://s.shopee.co.th/*",
+    "https://shope.ee/*",
+    "https://shp.ee/*",
+    "https://labs.google/*",
+    "https://flow.google.com/*",
+    "https://*.google.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://shopee.co.th/*", "https://*.shopee.co.th/*"],
+      "js": ["src/content/shopee.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "comment": "MAIN-world fetch helper. Shopee's API rejects requests that lack the headers its own client sets, so the actual fetch has to run in the page context (same approach ref3's injected-script and ref2's grok-api.js take). shopee.js (ISOLATED) drives it over window.postMessage.",
+      "matches": ["https://shopee.co.th/*", "https://*.shopee.co.th/*"],
+      "js": ["src/content/shopee-api.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://labs.google/*", "https://flow.google.com/*"],
+      "js": ["src/content/flow.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "comment": "MAIN-world direct-API client for Google Flow. Runs the SAME HTTP calls Flow's own web app makes (session token, project create, image upload, R2V generate/poll, media URL resolve) — see the header comment in flow-api.js for the verified endpoint list. Needs the page context for grecaptcha.enterprise and same-origin cookies. flow.js (ISOLATED) drives it over window.postMessage.",
+      "matches": ["https://labs.google/*", "https://flow.google.com/*"],
+      "js": ["src/content/flow-api.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ]
+}

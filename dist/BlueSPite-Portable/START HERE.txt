@@ -1,0 +1,17 @@
+BLUESPITE PORTABLE - START HERE
+========================================
+
+1. Extract the whole BlueSPite-Portable folder before using it.
+2. Double-click BlueSPite.exe. No Node.js or installer is required.
+3. Keep runtime, app, and extension beside BlueSPite.exe.
+
+CHROME EXTENSION - FIRST TIME ONLY
+1. Open chrome://extensions in Chrome.
+2. Turn on Developer mode.
+3. Click Load unpacked and choose this package's extension folder.
+4. Keep Chrome open, then run BlueSPite.exe.
+
+PORTABLE DATA
+- Settings/history are saved in the data folder.
+- Generated images/videos are saved in the Generated Media folder.
+- Copy the whole folder to move the app and its data to another PC.

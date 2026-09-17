@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BlueSPite</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%232563eb'/><text x='16' y='23' font-size='20' font-family='sans-serif' font-weight='700' fill='white' text-anchor='middle'>S</text></svg>" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <aside class="rail">
+    <div class="brand">
+      <span class="brand-mark">S</span>
+      <div>
+        <strong>BlueSPite</strong>
+        <small>Shopee → AI video</small>
+      </div>
+    </div>
+
+    <nav id="nav">
+      <button data-page="search" class="on"><span>1</span>หาสินค้า</button>
+      <button data-page="scan"><span>2</span>สแกนสินค้า</button>
+      <button data-page="generate"><span>3</span>ตั้งค่า Prompt</button>
+      <button data-page="queue"><span>4</span>คิว &amp; ผลงาน</button>
+      <button data-page="history"><span>5</span>ประวัติ</button>
+    </nav>
+
+    <div class="link-card">
+      <div class="link-row"><span class="dot" id="extDot"></span><span id="extLabel">ยังไม่เชื่อมต่อ</span></div>
+      <div class="link-row sub"><span class="dot small" id="shopeeDot"></span>Shopee<em id="shopeeInfo"></em></div>
+      <div class="link-row sub"><span class="dot small" id="flowDot"></span>Flow<em id="flowInfo"></em></div>
+      <p class="link-note">ทุกคำสั่งไปหา Shopee และ Flow ผ่าน extension เท่านั้น</p>
+    </div>
+  </aside>
+
+  <main>
+    <!-- ═══════════════════════════════ 1. หาสินค้า ═══════════════════════════ -->
+    <section class="page on" data-page="search">
+      <header class="page-head">
+        <h1>หาสินค้า Shopee</h1>
+        <p>ค้นหาแล้วให้ระบบวิเคราะห์ให้คะแนน — ยอดขาย เรตติ้ง ราคา และค่าคอมฯ</p>
+      </header>
+
+      <form class="card" id="searchForm">
+        <div class="field grow">
+          <label for="keyword">คำค้น</label>
+          <input id="keyword" name="keyword" placeholder="เช่น ครีมกันแดด, หูฟังบลูทูธ" autocomplete="off" required />
+        </div>
+        <div class="field narrow">
+          <label for="limit">จำนวน</label>
+          <select id="limit">
+            <option value="30">30</option>
+            <option value="60" selected>60</option>
+            <option value="120">120</option>
+          </select>
+        </div>
+        <div class="field narrow">
+          <label for="minPrice">ราคาต่ำสุด</label>
+          <input id="minPrice" type="number" min="0" step="1" placeholder="—" />
+        </div>
+        <div class="field narrow">
+          <label for="maxPrice">ราคาสูงสุด</label>
+          <input id="maxPrice" type="number" min="0" step="1" placeholder="—" />
+        </div>
+        <label class="check"><input type="checkbox" id="withCommission" /> ดึงค่าคอมฯ (ต้องล็อกอิน Affiliate)</label>
+        <button class="primary" type="submit" id="searchBtn">ค้นหา</button>
+      </form>
+
+      <div class="card weights">
+        <strong>น้ำหนักการให้คะแนน</strong>
+        <div class="weight-grid" id="weightGrid"></div>
+        <p class="muted">คะแนนเป็นการเทียบกันภายในผลค้นหาชุดนี้ ไม่ใช่คะแนนคุณภาพสินค้าแบบสัมบูรณ์</p>
+      </div>
+
+      <div class="toolbar" id="searchToolbar" hidden>
+        <span id="searchCount"></span>
+        <button id="selectAllSearch" class="ghost">เลือกทั้งหมด</button>
+        <button id="sendToScan" class="primary" disabled>ส่งลิงก์ที่เลือกไปสแกน</button>
+        <button id="sendToQueue" class="primary" disabled>🎬 ส่งไปคิว</button>
+        <button id="copyLinks" class="ghost" disabled>คัดลอกลิงก์</button>
+      </div>
+      <div id="searchResults" class="results"></div>
+    </section>
+
+    <!-- ═══════════════════════════════ 2. สแกนสินค้า ═════════════════════════ -->
+    <section class="page" data-page="scan">
+      <header class="page-head">
+        <h1>สแกนรายละเอียดสินค้า</h1>
+        <p>วางลิงก์สินค้า (บรรทัดละ 1 ลิงก์ หรือคั่นด้วยเว้นวรรค) — รับลิงก์ย่อ s.shopee.co.th ได้</p>
+      </header>
+
+      <form class="card column" id="scanForm">
+        <textarea id="scanText" rows="5" placeholder="https://shopee.co.th/...-i.123456.7890123&#10;https://s.shopee.co.th/xxxxxxx"></textarea>
+        <div class="row">
+          <button class="primary" type="submit" id="scanBtn">สแกน</button>
+          <span id="scanStatus" class="muted"></span>
+        </div>
+      </form>
+
+      <div class="toolbar">
+        <span id="productCount"></span>
+        <button id="gotoSettingsBtn" class="ghost">⚙ ตั้งค่า Prompt</button>
+        <button id="sendAllBtn" class="primary">🎬 ส่งสร้างวิดีโอทั้งหมด</button>
+        <button id="clearProducts" class="ghost danger">ล้างสินค้าทั้งหมด</button>
+      </div>
+      <div id="productList" class="results"></div>
+    </section>
+
+    <!-- ═══════════════════════════════ 3. ตั้งค่า Prompt ═══════════════════════ -->
+    <section class="page" data-page="generate">
+      <header class="page-head">
+        <div class="row" style="justify-content: space-between; align-items: flex-start;">
+          <div>
+            <h1>ตั้งค่า Prompt</h1>
+            <p>ตั้งค่านี้ครั้งเดียว ใช้กับทุกสินค้าที่กด "สร้างวิดีโอ" หรือ "ส่งสร้างวิดีโอทั้งหมด" จากหน้าสแกนสินค้า — บันทึกอัตโนมัติทุกครั้งที่เปลี่ยนค่า</p>
+          </div>
+          <button id="saveSettingsBtn" class="primary" type="button">💾 บันทึกการตั้งค่า</button>
+        </div>
+      </header>
+
+      <div class="split">
+        <div class="col">
+          <div class="card column">
+            <strong>1. รายละเอียดคลิป</strong>
+            <div id="directionGrid" class="direction-grid"></div>
+          </div>
+
+          <div class="card column">
+            <strong>2. โมเดลและขนาด</strong>
+            <div class="spec-grid">
+              <div class="field">
+                <label for="videoModel">โมเดลวิดีโอ</label>
+                <select id="videoModel"></select>
+                <small id="videoModelNote" class="muted"></small>
+              </div>
+              <div class="field">
+                <label for="imageModel">โมเดลภาพ Storyboard</label>
+                <select id="imageModel"></select>
+              </div>
+              <div class="field">
+                <label for="characterMode">ความต่อเนื่องของตัวละคร</label>
+                <select id="characterMode">
+                  <option value="random">สุ่มตัวละครตามแต่ละฉาก</option>
+                  <option value="consistent">ใช้ตัวละครคนเดียวกัน</option>
+                </select>
+                <small class="muted">โหมดคนเดียวกันจะสร้างภาพ identity ก่อน Storyboard</small>
+              </div>
+              <div class="field">
+                <label for="sceneMode">รูปแบบฉาก</label>
+                <select id="sceneMode">
+                  <option value="independent">แยกฉาก แล้วรวมท้ายงาน</option>
+                  <option value="continuous">ต่อเนื่องด้วย Extended</option>
+                </select>
+                <small id="sceneModeNote" class="muted"></small>
+              </div>
+              <div class="field">
+                <label for="aspect">ขนาด</label>
+                <select id="aspect"></select>
+              </div>
+              <div class="field">
+                <label for="sceneCount">จำนวนฉาก</label>
+                <input type="number" id="sceneCount" min="1" max="10" step="1" value="1" />
+                <small id="sceneCountNote" class="muted"></small>
+              </div>
+              <div class="field">
+                <label for="textMode">ข้อความในวิดีโอ</label>
+                <select id="textMode"></select>
+                <small id="textModeNote" class="muted"></small>
+              </div>
+              <div class="field">
+                <label for="concurrency">จำนวนคิวพร้อมกัน</label>
+                <input type="number" id="concurrency" min="1" max="150" step="1" value="1" />
+                <small id="concurrencyNote" class="muted"></small>
+              </div>
+            </div>
+          </div>
+
+          <div class="card column">
+            <strong>3. Prompt เพิ่มเติม (ไม่บังคับ)</strong>
+            <textarea id="extraPrompt" rows="3" placeholder="อยากให้เน้นอะไรเป็นพิเศษ…"></textarea>
+          </div>
+
+          <div class="card column">
+            <strong>4. Prompt วิดีโอรายฉาก (ไม่บังคับ)</strong>
+            <p class="muted scene-prompt-help">เว้นว่างเพื่อใช้ Prompt ค่าเริ่มต้น ระบบจะต่อข้อความที่กรอกไว้ท้าย Prompt ของฉากนั้น</p>
+            <div id="sceneVideoPrompts" class="scene-prompt-grid"></div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="card column sticky">
+            <div class="row" style="justify-content: space-between; align-items: center;">
+              <strong>ตัวอย่าง Prompt</strong>
+              <button id="sampleBtn" class="ghost" type="button" title="สุ่มสินค้าอื่นมาดูตัวอย่าง">🎲 สุ่มสินค้าใหม่</button>
+            </div>
+            <p class="muted">สุ่มจากสินค้าที่สแกนไว้ ใช้ค่าตั้งค่าปัจจุบัน — เปลี่ยนค่าด้านซ้ายแล้วดูผลได้ทันที</p>
+            <div id="sampleBox" class="sample-box"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════ 4. คิว ═══════════════════════════════ -->
+    <section class="page" data-page="queue">
+      <header class="page-head">
+        <h1>คิว &amp; ผลงาน</h1>
+        <p>รันทีละงานโดยตั้งใจ — ยิงพร้อมกันหลายงาน Flow จะมองว่าเป็นบอท</p>
+      </header>
+
+      <div class="toolbar">
+        <span id="queueCounts"></span>
+        <button id="runQueue" class="primary">▶ รันคิว</button>
+        <button id="stopQueue" class="ghost">■ หยุด</button>
+        <button id="clearJobs" class="ghost danger">ล้างงานที่จบแล้ว</button>
+        <button id="clearFailed" class="ghost danger" hidden>ล้าง Failed</button>
+        <button id="retryAllFailed" class="ghost" hidden>ลองใหม่ทั้งหมด</button>
+        <label class="switch-row">
+          <span class="switch">
+            <input type="checkbox" id="autoPlay">
+            <span class="switch-slider"></span>
+          </span>
+          <span>เริ่มคิวอัตโนมัติเมื่อส่งงานเข้าคิว</span>
+        </label>
+      </div>
+      <div id="jobList" class="results"></div>
+    </section>
+
+    <!-- ═══════════════════════════════ 5. ประวัติ ═══════════════════════════ -->
+    <section class="page" data-page="history">
+      <header class="page-head">
+        <h1>ประวัติ</h1>
+        <p>สรุปทุกออเดอร์ที่เคยสั่งสร้าง — สินค้าอะไร มีข้อความในวิดีโอหรือไม่ ใช้เวลาสร้างเท่าไหร่</p>
+      </header>
+
+      <div class="toolbar">
+        <div id="historyFilter" class="log-mode-toggle">
+          <button type="button" data-filter="all" class="on">ทั้งหมด</button>
+          <button type="button" data-filter="done">สำเร็จ</button>
+          <button type="button" data-filter="failed">ล้มเหลว</button>
+          <button type="button" data-filter="cancelled">ยกเลิก</button>
+        </div>
+      </div>
+      <div class="toolbar" id="historyClearBar">
+        <span class="muted">ลบเฉพาะคอลัมน์ (ไม่มีลบทั้งหมด):</span>
+        <button type="button" class="ghost danger" data-clear="done">ลบงานที่สำเร็จ</button>
+        <button type="button" class="ghost danger" data-clear="failed">ลบงานที่ล้มเหลว</button>
+        <button type="button" class="ghost danger" data-clear="cancelled">ลบงานที่ยกเลิก</button>
+      </div>
+      <div id="historyList" class="results"></div>
+    </section>
+  </main>
+
+  <!-- Log — a centered popup, not a docked panel (matches ref1's LogsModal). The
+       corner chip is just the trigger + live error/line-count badge. -->
+  <button id="logToggle" class="log-toggle" aria-expanded="false">
+    <span class="dot" id="logDot"></span>
+    <span>Log</span>
+    <em id="logBadge"></em>
+  </button>
+  <div id="logBackdrop" class="log-backdrop" hidden>
+    <div id="logBody" class="log-modal" role="dialog" aria-modal="true" aria-label="Log">
+      <div class="log-modal-head">
+        <strong>Log</strong>
+        <button id="logCloseBtn" class="ghost log-close" type="button" aria-label="ปิด">✕</button>
+      </div>
+      <div class="log-bar">
+        <div class="log-mode-toggle" role="tablist">
+          <button type="button" id="logModeGeneral" class="on" role="tab">ทั่วไป</button>
+          <button type="button" id="logModeDev" role="tab">Dev</button>
+        </div>
+        <input id="logFilter" type="search" placeholder="กรองข้อความ…" />
+        <span class="spacer"></span>
+        <label class="check"><input type="checkbox" id="logFollow" checked /> ตามล่าสุด</label>
+        <button id="logCopy" class="ghost">คัดลอก</button>
+        <button id="logClear" class="ghost danger">ล้าง log</button>
+      </div>
+      <div id="log" class="log"></div>
+    </div>
+  </div>
+
+  <!-- Video preview popup — plays the local downloaded file (or falls back to the
+       remote Flow URL for older jobs) instead of opening a new tab. -->
+  <div id="videoBackdrop" class="log-backdrop" hidden>
+    <div id="videoModal" class="video-modal" role="dialog" aria-modal="true" aria-label="วิดีโอ">
+      <div class="log-modal-head">
+        <strong id="videoModalTitle">วิดีโอ</strong>
+        <button id="videoCloseBtn" class="ghost log-close" type="button" aria-label="ปิด">✕</button>
+      </div>
+      <div class="video-stage">
+        <video id="videoModalPlayer" controls playsinline></video>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

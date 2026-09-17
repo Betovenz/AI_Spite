@@ -1,0 +1,25 @@
+:root { color-scheme: light dark; }
+body {
+  font: 13px/1.5 "Segoe UI", system-ui, sans-serif;
+  width: 260px; margin: 0; padding: 14px;
+  background: Canvas; color: CanvasText;
+}
+header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+h1 { font-size: 14px; margin: 0; flex: 1; letter-spacing: .2px; }
+.ver { font-size: 11px; opacity: .55; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: #9aa0a6; flex: none; display: inline-block; }
+.dot.small { width: 7px; height: 7px; }
+.dot.on { background: #1e8e3e; }
+.dot.off { background: #d93025; }
+.line { margin: 0 0 10px; font-size: 12px; opacity: .8; }
+.sites { list-style: none; padding: 0; margin: 0 0 12px; }
+.sites li { display: flex; align-items: center; gap: 7px; padding: 3px 0; }
+.sites em { margin-left: auto; font-style: normal; font-size: 11px; opacity: .6; }
+.actions { display: flex; gap: 6px; }
+button {
+  flex: 1; padding: 6px 8px; font: inherit; font-size: 12px;
+  border: 1px solid color-mix(in srgb, CanvasText 22%, transparent);
+  border-radius: 6px; background: color-mix(in srgb, CanvasText 6%, Canvas); color: inherit; cursor: pointer;
+}
+button:hover { background: color-mix(in srgb, CanvasText 12%, Canvas); }
+.hint { margin: 10px 0 0; font-size: 11px; opacity: .55; }
